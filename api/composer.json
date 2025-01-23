@@ -1,5 +1,7 @@
 {
+    "name": "zerai/esb",
     "type": "project",
+    "description": "Esb",
     "license": "MIT",
     "require": {
         "php": ">=8.2",
@@ -10,6 +12,10 @@
         "doctrine/doctrine-bundle": "^2.7",
         "doctrine/doctrine-migrations-bundle": "^3.2",
         "doctrine/orm": "^2.12",
+        "ecotone/amqp": "^1.241",
+        "ecotone/dbal": "^1.241",
+        "ecotone/jms-converter": "^1.241",
+        "ecotone/symfony-bundle": "^1.241",
         "nelmio/cors-bundle": "^2.2",
         "phpstan/phpdoc-parser": "^1.16",
         "runtime/frankenphp-symfony": "^0.2",

@@ -40,6 +40,27 @@
             "migrations/.gitignore"
         ]
     },
+    "ecotone/symfony-bundle": {
+        "version": "1.241.0"
+    },
+    "enqueue/amqp-ext": {
+        "version": "0.10",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "0.7",
+            "ref": "3c5175ca17ff2dc08715e460214e9ce77aa46580"
+        }
+    },
+    "enqueue/dbal": {
+        "version": "0.10",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "0.4",
+            "ref": "4dd47013ecec8a158d186f63ec4b51f1defff897"
+        }
+    },
     "friendsofphp/php-cs-fixer": {
         "version": "3.64",
         "recipe": {
