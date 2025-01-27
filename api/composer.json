@@ -104,7 +104,11 @@
         "cs:fix": "./vendor/bin/ecs --fix",
         "rc": "./vendor/bin/rector --dry-run",
         "rc:fix": "./vendor/bin/rector",
-        "sa": "./vendor/bin/psalm"
+        "sa": "./vendor/bin/psalm",
+        "ta": "./bin/phpunit",
+        "tf": "./bin/phpunit --testsuite=functional",
+        "ti": "./bin/phpunit --testsuite=integration",
+        "tu": "./bin/phpunit --testsuite=unit"
     },
     "scripts-descriptions": {
         "ark": "Checks architecture rules",
@@ -112,7 +116,11 @@
         "cs:fix": "Fix php coding standard",
         "rc": "Check rector roules",
         "rc:fix": "Fix rector issues",
-        "sa": "Check static analysis (psalm)"
+        "sa": "Check static analysis (psalm)",
+        "ta": "run tests - all",
+        "tf": "run tests - funtional",
+        "ti": "run tests - integration",
+        "tu": "run tests - unit"
     },
     "conflict": {
         "symfony/symfony": "*"
