@@ -22,3 +22,13 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    Enqueue\Dbal\DbalConnectionFactory:
+        class: Enqueue\Dbal\DbalConnectionFactory
+        factory: ['Ecotone\Dbal\DbalConnection', 'fromDsn']
+        arguments: ['%env(resolve:DATABASE_URL)%']
+    
+    Enqueue\AmqpExt\AmqpConnectionFactory:
+        class: Enqueue\AmqpExt\AmqpConnectionFactory
+        arguments:
+            - '%env(resolve:ENQUEUE_DSN)%'

@@ -43,3 +43,19 @@ services:
 
 ###> symfony/mercure-bundle ###
 ###< symfony/mercure-bundle ###
+
+
+  ######################################################################################################################
+  #
+  #   Messaging & queue - RabbitMq
+  #
+  ######################################################################################################################
+  mbroker:
+    ports:
+      - target: 5672
+        published: 5672
+        protocol: tcp
+      # HTTP
+      - target: 15672
+        published: ${RABBITMQ_HTTP_PORT:-15672}
+        protocol: tcp
