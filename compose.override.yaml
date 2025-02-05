@@ -35,6 +35,13 @@ services:
 
 ###> doctrine/doctrine-bundle ###
   database:
+    volumes:
+      - ./sys/docker/postgres:/docker-entrypoint-initdb.d
+    environment:
+      #- POSTGRES_DB=${POSTGRES_DB:-app}
+      - POSTGRES_MULTIPLE_DATABASES=app_test
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-!ChangeMe!}
+      - POSTGRES_USER=${POSTGRES_USER:-app}
     ports:
       - target: 5432
         published: 5432
@@ -59,3 +66,21 @@ services:
       - target: 15672
         published: ${RABBITMQ_HTTP_PORT:-15672}
         protocol: tcp
+  ######################################################################################################################
+  #
+  #   Database UI - PgAdmin
+  #
+  ######################################################################################################################
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    depends_on:
+      - database
+    ports:
+      - "8181:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "admin@example.com"
+      PGADMIN_DEFAULT_PASSWORD: "admin"
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    volumes:
+      - ./sys/docker/pgAdmin/servers.json:/pgadmin4/servers.json
