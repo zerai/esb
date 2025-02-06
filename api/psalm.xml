@@ -19,6 +19,9 @@
         <ignoreFiles>
             <directory name="vendor" />
             <directory name="tools" />
+            <file name="context/cart/src/Infrastructure/Framework/Extension/CartModuleExtension.php" />
+            <file name="context/inventory/src/Infrastructure/Framework/Extension/InventoryModuleExtension.php" />
+            <file name="context/pricing/src/Infrastructure/Framework/Extension/PricingModuleExtension.php" />
         </ignoreFiles>
     </projectFiles>
 </psalm>

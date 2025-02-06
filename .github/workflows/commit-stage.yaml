@@ -1,0 +1,139 @@
+name: Commit stage
+
+on:
+  workflow_call:
+    # Map the workflow outputs to job outputs
+    inputs:
+      triggering-sha:
+        required: true
+        type: string
+
+defaults:
+  run:
+    shell: bash
+    working-directory: api
+    
+env:
+  # PHP SETTINGS
+  PHP_EXTENSIONS: json
+  PHP_EXTENSIONS_CACHE_KEY: cache-php-extensions-v1
+
+jobs:
+  commit-checks:
+    name: Commit checks
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        php:
+          - '8.3'
+      fail-fast: false
+    steps:
+      - name: Checkout on SHA-${{ inputs.triggering-sha }}
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.triggering-sha }}
+
+      - name: Setup php extension cache environment
+        if: ${{ vars.USE_PHP_EXTENSION_CACHE }}
+        id: cache-php-extensions
+        uses: shivammathur/cache-extensions@v1
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: ${{ env.PHP_EXTENSIONS }}
+          key: ${{ env.PHP_EXTENSIONS_CACHE_KEY }}
+
+      - name: Cache PHP extensions
+        if: ${{ vars.USE_PHP_EXTENSION_CACHE }}
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.cache-php-extensions.outputs.dir }}
+          key: ${{ steps.cache-php-extensions.outputs.key }}
+          restore-keys: ${{ steps.cache-php-extensions.outputs.key }}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@2.31.1
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: ${{ env.PHP_EXTENSIONS }}
+          ini-values: memory_limit=-1
+          coverage: none
+          tools: composer, composer-normalize:2.16.0
+
+      - name: Set Composer Cache Directory
+        if: ${{ vars.USE_COMPOSER_CACHE }}
+        id: composer-cache
+        run: |
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        if: ${{ vars.USE_COMPOSER_CACHE }}
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-php-${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-${{ matrix.php }}-composer-
+
+      - name: Install Composer dependencies
+        run: |
+          composer install --prefer-dist --no-scripts --ansi
+
+      - name: Run composer validate
+        run: |
+          composer validate --strict --ansi
+
+      - name: Run composer normalize
+        if: always()
+        run: |
+          composer-normalize --dry-run --ansi
+      
+      - name: Run composer audit
+        if: always()
+        run: |
+          composer audit --ansi
+      
+      - name: Run CODING STANDARDS checks (ecs)
+        if: always()
+        run: |
+          composer bin ecs install
+          ./vendor/bin/ecs --ansi
+
+      - name: Run STATIC ANALYSIS checks (psalm)
+        if: always()
+        run: |
+          composer bin psalm install
+          ./vendor/bin/psalm
+
+      - name: Run REFACTORING TOOL checks (rector)
+        if: always()
+        run: |
+          composer bin rector install
+          ./vendor/bin/rector --dry-run
+
+      - name: Run ARCHITECTURE checks (phparkitect)
+        if: always()
+        run: |
+          composer bin rector install
+          ./vendor/bin/rector --dry-run
+
+      #
+      # Additional checks, they are pre-condition before
+      # 'acceptance stage' phase of the CI
+      #
+
+      - name: Run yml linter on configurations files
+        run: |
+          ./bin/console lint:yaml config/ --ansi
+      
+      - name: Run linter on symfony containers (prod|dev)
+        run: |
+          ./bin/console lint:container -e prod --ansi
+          ./bin/console lint:container -e dev --ansi
+        continue-on-error: true
+
+      - name: Run linter on all twig templates
+        run: |
+          ./bin/console lint:twig --ansi
+        env:
+          APP_ENV: dev
