@@ -85,6 +85,18 @@
             "config/packages/nelmio_cors.yaml"
         ]
     },
+    "prooph/pdo-event-store": {
+        "version": "1.15",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "1.15",
+            "ref": "020f87be92de58907f180d552e1a1b0d8c34cdd1"
+        },
+        "files": [
+            "config/packages/prooph_pdo_event_store.yaml"
+        ]
+    },
     "symfony/console": {
         "version": "6.4",
         "recipe": {
