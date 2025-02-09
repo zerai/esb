@@ -1,0 +1,120 @@
+name: Acceptance stage
+
+on:
+  workflow_dispatch: ~
+  workflow_call:
+    # Map the workflow outputs to job outputs
+    inputs:
+      triggering-sha:
+        required: true
+        type: string
+
+concurrency:
+  group: ${{ github.workflow }}-${{ inputs.triggering-sha || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  acceptance-checks:
+    name: Acceptance checks
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout on SHA-${{ inputs.triggering-sha }}
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.triggering-sha }}
+
+      - name: Show CI job info (dump context)
+        if: ${{ vars.SHOW_JOB_GHA_CONTEXT == '1'}}
+        uses: crazy-max/ghaction-dump-context@v2
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Build Docker images
+        uses: docker/bake-action@v5
+        with:
+          pull: true
+          load: true
+          files: |
+            compose.yaml
+            compose.override.yaml
+          set: |
+            php.cache-from=type=gha,scope=php-${{github.ref}}
+            php.cache-from=type=gha,scope=php-refs/heads/main
+            php.cache-to=type=gha,scope=php-${{github.ref}},mode=max
+            pwa.cache-from=type=gha,scope=pwa-${{github.ref}}
+            pwa.cache-from=type=gha,scope=pwa-refs/heads/main
+            pwa.cache-to=type=gha,scope=pwa-${{github.ref}},mode=max
+
+      - name: Start services
+        run: docker compose up --wait --no-build
+
+      - name: Check HTTP reachability
+        run: curl -v --fail-with-body http://localhost
+      
+      - name: Prepare database
+        run: |
+          docker compose exec php ./bin/console doctrine:migrations:migrate -n -vv --allow-no-migration --ansi
+          docker compose exec php ./bin/console doctrine:migrations:list --ansi
+          docker compose exec php ./bin/console doctrine:schema:validate --ansi
+        continue-on-error: true
+
+
+  integration-tests:
+    name: Integration test
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout on SHA-${{ inputs.triggering-sha }}
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.triggering-sha }}
+
+      - name: Show CI job info (dump context)
+        if: ${{ vars.SHOW_JOB_GHA_CONTEXT == '1'}}
+        uses: crazy-max/ghaction-dump-context@v2
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Build Docker images
+        uses: docker/bake-action@v5
+        with:
+          pull: true
+          load: true
+          files: |
+            compose.yaml
+            compose.override.yaml
+          set: |
+            php.cache-from=type=gha,scope=php-${{github.ref}}
+            php.cache-from=type=gha,scope=php-refs/heads/main
+            php.cache-to=type=gha,scope=php-${{github.ref}},mode=max
+            pwa.cache-from=type=gha,scope=pwa-${{github.ref}}
+            pwa.cache-from=type=gha,scope=pwa-refs/heads/main
+            pwa.cache-to=type=gha,scope=pwa-${{github.ref}},mode=max
+
+      - name: Start services
+        run: docker compose up --wait --no-build
+
+      - name: Check HTTP reachability
+        run: curl -v --fail-with-body http://localhost
+      
+      - name: Prepare database
+        run: |
+          docker compose exec php ./bin/console doctrine:schema:validate --ansi
+        continue-on-error: false
+
+      - name: Run phpunit (integration testsuite)
+        run: docker compose exec php bin/phpunit --testsuite=integration
+
+
+  2e-checks:
+    name: End2End Checks
+    needs:
+      - acceptance-checks
+      - integration-tests
+    uses: zerai/esb/.github/workflows/e2e.yaml@main
+    secrets: inherit
+    with:
+      triggering-sha: "${{ github.sha }}"

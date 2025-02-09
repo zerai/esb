@@ -15,3 +15,13 @@ jobs:
     secrets: inherit
     with:
       triggering-sha: "${{ github.sha }}"
+  
+  acceptance-stage-workflow:
+    name: Acceptance Stage
+    needs:
+        - build-stage-workflow
+    uses: zerai/esb/.github/workflows/acceptance-stage.yaml@main
+    secrets: inherit
+    with:
+      triggering-sha: "${{ github.sha }}"
+
