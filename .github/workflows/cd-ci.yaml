@@ -19,7 +19,8 @@ jobs:
   acceptance-stage-workflow:
     name: Acceptance Stage
     needs:
-        - build-stage-workflow
+      - commit-stage-workflow
+      - build-stage-workflow
     uses: zerai/esb/.github/workflows/acceptance-stage.yaml@main
     secrets: inherit
     with:
