@@ -8,3 +8,10 @@ jobs:
     uses: zerai/esb/.github/workflows/commit-stage.yaml@main
     with:
       triggering-sha: "${{ github.sha }}"
+
+  build-stage-workflow:
+    name: Build Stage
+    uses: zerai/esb/.github/workflows/build-stage.yaml@main
+    secrets: inherit
+    with:
+      triggering-sha: "${{ github.sha }}"
