@@ -15,9 +15,8 @@ services:
     # this creates a service per class whose id is the fully-qualified class name
     Cart\:
         resource: '../../../src/'
-        #exclude:
-            #- '../src/DependencyInjection/'
-            #- '../src/Entity/'
+        exclude:
+            - '../src/Core/Model/'
             
 
     # add more service definitions when explicit configuration is needed

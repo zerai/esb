@@ -3,3 +3,9 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+
+cart_controllers:
+    resource:
+        path: ../context/cart/src/AdapterForHttp/
+        namespace: Cart\AdapterForHttp
+    type: attribute
