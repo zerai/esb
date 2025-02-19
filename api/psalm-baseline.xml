@@ -1,5 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <files psalm-version="6.0.0@b8e96bb617bf59382113b1b56cef751f648a7dc9">
+  <file src="context/cart/src/AdapterForHttp/AddItemController.php">
+    <UnusedClass>
+      <code><![CDATA[AddItemController]]></code>
+    </UnusedClass>
+  </file>
+  <file src="context/cart/src/Core/Model/Cart.php">
+    <MissingConstructor>
+      <code><![CDATA[$cartId]]></code>
+    </MissingConstructor>
+    <UnusedClass>
+      <code><![CDATA[Cart]]></code>
+    </UnusedClass>
+  </file>
+  <file src="context/cart/src/Core/Model/ItemAdded.php">
+    <PossiblyUnusedProperty>
+      <code><![CDATA[$cartId]]></code>
+      <code><![CDATA[$description]]></code>
+      <code><![CDATA[$image]]></code>
+      <code><![CDATA[$price]]></code>
+      <code><![CDATA[$productId]]></code>
+    </PossiblyUnusedProperty>
+  </file>
   <file src="src/Entity/Greeting.php">
     <UnusedClass>
       <code><![CDATA[Greeting]]></code>
